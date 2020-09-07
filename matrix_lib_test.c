@@ -38,7 +38,7 @@
 
 typedef struct matrix Matrix;
 
-Matrix *newMatrix( int width, int height, FILE *stream) {
+Matrix *newMatrix( int height, int width, FILE *stream) {
     Matrix *m = malloc(sizeof(Matrix));
     if (m) {
         m->width = width;
@@ -86,9 +86,9 @@ int main ( int argc, char **argv ) {
     Matrix *A, *B, *C;
     
     if (argc != 10) {
-        printf("Usage: %s <float to multiply> <A matrix width> <A matrix height>"
-                                            " <B matrix widht> <B matrix Height>"
-                                            " <A file> <B file>"
+        printf("Usage: %s <float to multiply> <A matrix height> <A matrix width>"
+                                            " <B matrix height> <B matrix width>"
+                                            " <A input file> <B input file>"
                                             " <result1 file> <result2 file>\n", argv[0]);
         return 1;
     }
