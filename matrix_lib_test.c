@@ -68,8 +68,8 @@ void writeMatrix( const Matrix *m, FILE *stream ) {
 /* print matrix values to stdout */
 void printMatrix( const Matrix *m ){
     int i,j;
-    for (i=0; i<m->width; i++) {
-        for (j=0; (j<m->height) && (i*m->width+m->height < MAX_PRINT); j++) {
+    for (i=0; i<m->height; i++) {
+        for (j=0; (j<m->width) && (i*m->width+m->height < MAX_PRINT); j++) {
             printf("%.1f ", m->rows[i*m->width+j]);
         }
         putchar('\n');
