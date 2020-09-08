@@ -69,13 +69,14 @@ void writeMatrix( const Matrix *m, FILE *stream ) {
 void printMatrix( const Matrix *m ){
     int i,j;
     for (i=0; i<m->height; i++) {
-        for (j=0; (j<m->width) && (i*m->width+m->height < MAX_PRINT); j++) {
+        for (j=0; (j<m->width) && (i*m->width+j < MAX_PRINT); j++) {
             printf("%.1f ", m->rows[i*m->width+j]);
+            if (j == m->width-1)
+                putchar('\n');
         }
-        putchar('\n');
     }
     if (m->width * m->height > MAX_PRINT){
-        printf("%d limit found...skipping printing...\n", MAX_PRINT);
+        printf("\n%d limit found...skipping printing...\n", MAX_PRINT);
     }
 }
 
