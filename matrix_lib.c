@@ -27,7 +27,8 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
  *   between accessed memory adresses.
  */
 int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct matrix * matrixC) {
-    int i,j,k,ib,jb,kb,sum,block_size = 8;
+    int i,j,k,ib,jb,kb,block_size = 8;
+    float sum;
     if (matrixA->width != matrixB->height || matrixA->height != matrixC->height || matrixB->width != matrixC->width)
         return 0;
     for (i=0; i< matrixC->height ; i+=block_size) {
