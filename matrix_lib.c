@@ -22,17 +22,28 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
  *matriz A pela matriz B. O resultado da operação deve ser retornado na matriz C. Em caso
  *de sucesso, a função deve retornar o valor 1. Em caso de erro, a função deve retornar 0.
  *
- * NAIVE IMPLEMENTATION
+ * OPTIMIZATION 1:
+ *   operations are made in square blocks of block_size to avoid accessing long distances 
+ *   between accessed memory adresses.
  */
 int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct matrix * matrixC) {
-    int i,j,k;
+    int i,j,k,ib,jb,kb,sum,block_size = 8;
     if (matrixA->width != matrixB->height || matrixA->height != matrixC->height || matrixB->width != matrixC->width)
         return 0;
-    for (i=0; i< matrixC->height ; i++) {
-        for (j=0; j<matrixC->width; j++) {
-            for (k=0; k<matrixA->width; k++){
-                matrixC->rows[i*matrixC->width+j] += matrixA->rows[i*matrixA->width + k] *
-                                                     matrixB->rows[k*matrixB->width + j];
+    for (i=0; i< matrixC->height ; i+=block_size) {
+        for (j=0; j<matrixC->width; j+=block_size) {
+            for (k=0; k<matrixA->width; k+=block_size){
+                //for each block:
+                for (ib=i; ib<block_size+i; ib++){
+                    for (jb=j; jb<block_size+j; jb++) {
+                        sum = 0;
+                        for (kb=k; kb<block_size+k; kb++) {
+                            sum += matrixA->rows[ib*matrixA->width + kb] *
+                                   matrixB->rows[kb*matrixB->width + jb];
+                        }
+                        matrixC->rows[ib*matrixC->width+jb] += sum;
+                    }
+                }
             }
         }
     }
