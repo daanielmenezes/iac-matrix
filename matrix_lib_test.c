@@ -31,6 +31,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include "timer.h"
 #include "matrix_lib.h"
 
@@ -80,6 +82,15 @@ void printMatrix( const Matrix *m ){
     }
 }
 
+FILE *openCheck(char *path, char *mode){
+    FILE *f = fopen(path, mode);
+    if (f == NULL){
+        printf("It was not possible to open the file \"%s\": %s\n", path, strerror(errno));
+        exit(1);
+    }
+    return f;
+}
+
 int main ( int argc, char **argv ) {
     int scalar_mult_success, matrix_matrix_success;
     struct timeval start, stop, overall_t1, overall_t2;
@@ -95,16 +106,18 @@ int main ( int argc, char **argv ) {
     }
     gettimeofday(&overall_t1, NULL);
 
-    /* TODO: check if files were opened successfully */
-    fileA  = fopen(argv[6], "rb");
-    fileB  = fopen(argv[7], "rb");
-    fileR1 = fopen(argv[8], "wb");
-    fileR2 = fopen(argv[9], "wb");
+    fileA  = openCheck(argv[6], "rb");
+    fileB  = openCheck(argv[7], "rb");
+    fileR1 = openCheck(argv[8], "wb");
+    fileR2 = openCheck(argv[9], "wb");
 
-    /* TODO: check if matrices were allocated successfully */
     A = newMatrix(atoi(argv[2]), atoi(argv[3]), fileA);
     B = newMatrix(atoi(argv[4]), atoi(argv[5]), fileB);
     C = newMatrix(atoi(argv[2]), atoi(argv[5]), NULL);
+    if (A == NULL || B == NULL || C == NULL) {
+        perror("It was not possible to allocate all the matrices");
+        exit(1);
+    }
 
     puts("--------Matrix A ---------");
     printMatrix(A);
@@ -117,6 +130,10 @@ int main ( int argc, char **argv ) {
     printf("Executing scalar_matrix_mult(%s, A)\n", argv[1]);
     gettimeofday(&start, NULL);
     scalar_mult_success = scalar_matrix_mult(atof(argv[1]), A);
+    if (!scalar_mult_success) {
+        fprintf(stderr,"Error on scalar matrix multiplication\n");
+        exit(1);
+    }
     gettimeofday(&stop, NULL);
     printf("Scalar product time: %f ms\n", timedifference_msec(start, stop));
     printf("Writing first result to %s\n",argv[8]);
@@ -129,6 +146,10 @@ int main ( int argc, char **argv ) {
     gettimeofday(&start, NULL);
     matrix_matrix_success = matrix_matrix_mult(A, B, C);
     gettimeofday(&stop, NULL);
+    if (!matrix_matrix_success) {
+        fprintf(stderr,"Error on matrix multiplication\n");
+        exit(1);
+    }
     printf("Matrix product time: %f ms\n", timedifference_msec(start, stop));
     printf("Writing second result to %s\n",argv[9]);
     writeMatrix(C, fileR2);
