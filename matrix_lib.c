@@ -23,12 +23,12 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
  *de sucesso, a função deve retornar o valor 1. Em caso de erro, a função deve retornar 0.
  */
 int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct matrix * matrixC) {
-    int aLine, aCol, bCol, aLineIdx, aColIdx, bLineIdx, cLineIdx;
+    int aLine, aCol, bCol, aLineIdx, bLineIdx, cLineIdx;
     if (matrixA->width != matrixB->height || matrixA->height != matrixC->height || matrixB->width != matrixC->width)
         return 0;
     for (aLine = 0; aLine < matrixA->height; aLine++) {
         aLineIdx = aLine*matrixA->width;
-        cLineIdx = aLine*matrixC->width + bCol;
+        cLineIdx = aLine*matrixC->width;
         for (aCol=0; aCol < matrixA->width; aCol++) {
             bLineIdx = aCol*matrixB->width;
             for (bCol = 0; bCol < matrixB->width; bCol++) {
