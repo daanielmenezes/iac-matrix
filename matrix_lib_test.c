@@ -45,7 +45,7 @@ Matrix *newMatrix( int height, int width, FILE *stream) {
     if (m) {
         m->width = width;
         m->height = height;
-        m->rows = calloc(width*height, sizeof(float));
+        m->rows = aligned_alloc(32, width*height*sizeof(float));
         if (m->rows && stream) {
             fread(m->rows, sizeof(float), width*height, stream);
         }
