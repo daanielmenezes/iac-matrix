@@ -2,7 +2,6 @@
 #include <pthread.h>
 #include "matrix_lib.h"
 
-
 static int n_threads = 1;
 
 struct scalar_mult_arg {
@@ -16,12 +15,14 @@ static void *scalar_mult_worker(void *a) {
     struct scalar_mult_arg *arg = (struct scalar_mult_arg *) a;
     __m256 temp;
     const __m256 scalar_vec = _mm256_set1_ps(arg->scalar_value);
+
     for (i=0; i < arg->elem_qty; i+=8) {
         temp = _mm256_load_ps(arg->base+i);
         temp = _mm256_mul_ps(scalar_vec, temp);
         _mm256_store_ps(arg->base+i, temp);
     }
     pthread_exit(NULL);
+
 }
 
 
@@ -40,7 +41,7 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
         args = malloc(sizeof(struct scalar_mult_arg) * n_threads);
         line_qty = matrix->height/n_threads;
         for (i=0; i<n_threads; i++) {
-            args[i].base = matrix->rows+i*line_qty;
+            args[i].base = matrix->rows+i*line_qty*matrix->width;
             args[i].elem_qty = matrix->width*line_qty;
             args[i].scalar_value = scalar_value;
             pthread_create(&threads[i],NULL, scalar_mult_worker, &args[i]);
