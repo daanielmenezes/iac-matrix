@@ -1,5 +1,9 @@
 #include <immintrin.h>
+#include <pthread.h>
 #include "matrix_lib.h"
+
+
+static int n_threads = 1;
 
 /*
  *Essa função recebe um valor escalar e uma matriz como argumentos de entrada e calcula o
@@ -48,3 +52,8 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct m
     }
     return 1;
 }
+
+void set_number_threads(int num_threads) {
+    n_threads = num_threads;
+}
+
