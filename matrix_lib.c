@@ -108,7 +108,7 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct m
         args[i].matrixB = matrixB;
         args[i].matrixC = matrixC;
         args[i].firstLine = line;
-        args[i].firstLine = line + line_qty;
+        args[i].lastLine = line + line_qty;
         pthread_create(&threads[i],NULL, matrix_mult_worker, &args[i]);
     }
 
