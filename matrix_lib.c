@@ -60,16 +60,16 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
 
 
 
-struct mult_mult_arg {
+struct matrix_mult_arg {
     struct matrix *matrixA;
     struct matrix *matrixB;
     struct matrix *matrixC;
     int firstLine, lastLine;
 };
 
-static void *mult_mult_worker(void *a) {
+static void *matrix_mult_worker(void *a) {
     int aLine, aCol, bCol, aLineIdx, bLineIdx, cLineIdx;
-    struct mult_mult_arg *arg = (struct mult_mult_arg *) a;
+    struct matrix_mult_arg *arg = (struct matrix_mult_arg *) a;
     __m256 aElem, cResult, bRow;
 
     for (aLine = arg->firstLine; aLine < arg->lastLine; aLine++) {
@@ -96,12 +96,12 @@ static void *mult_mult_worker(void *a) {
 int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct matrix * matrixC) {
     int i, line_qty, line;
     pthread_t *threads;
-    struct mult_mult_arg *args;
+    struct matrix_mult_arg *args;
     if (matrixA->width != matrixB->height || matrixA->height != matrixC->height || matrixB->width != matrixC->width)
         return 0;
 
     threads = malloc(sizeof(pthread_t) * n_threads);
-    args = malloc(sizeof(struct mult_mult_arg) * n_threads);
+    args = malloc(sizeof(struct matrix_mult_arg) * n_threads);
     line_qty = matrixA->height/n_threads;
     for (i=0, line=0; i<n_threads; i++, line+=line_qty) {
         args[i].matrixA = matrixA;
@@ -109,7 +109,7 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct m
         args[i].matrixC = matrixC;
         args[i].firstLine = line;
         args[i].firstLine = line + line_qty;
-        pthread_create(&threads[i],NULL, mult_mult_worker, &args[i]);
+        pthread_create(&threads[i],NULL, matrix_mult_worker, &args[i]);
     }
 
     for (i=0; i<n_threads; i++) {
