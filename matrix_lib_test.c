@@ -138,7 +138,7 @@ int main ( int argc, char **argv ) {
     }
     gettimeofday(&stop, NULL);
     printf("Scalar product time: %f ms\n", timedifference_msec(start, stop));
-    printf("Writing first result to %s\n",argv[8]);
+    printf("Writing first result to %s\n",argv[9]);
     writeMatrix(A, fileR1);
     puts("--------Matrix A ---------");
     printMatrix(A);
@@ -153,7 +153,7 @@ int main ( int argc, char **argv ) {
         exit(1);
     }
     printf("Matrix product time: %f ms\n", timedifference_msec(start, stop));
-    printf("Writing second result to %s\n",argv[9]);
+    printf("Writing second result to %s\n",argv[10]);
     writeMatrix(C, fileR2);
     puts("--------Matrix C ---------");
     printMatrix(C);
