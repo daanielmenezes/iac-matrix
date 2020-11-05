@@ -97,7 +97,7 @@ int main ( int argc, char **argv ) {
     FILE *fileA, *fileB, *fileR1, *fileR2;
     Matrix *A, *B, *C;
     
-    if (argc != 10) {
+    if (argc != 11) {
         printf("Usage: %s <float to multiply> <A matrix height> <A matrix width>"
                                             " <B matrix height> <B matrix width>"
                                             " <A input file> <B input file>"
