@@ -106,10 +106,12 @@ int main ( int argc, char **argv ) {
     }
     gettimeofday(&overall_t1, NULL);
 
-    fileA  = openCheck(argv[6], "rb");
-    fileB  = openCheck(argv[7], "rb");
-    fileR1 = openCheck(argv[8], "wb");
-    fileR2 = openCheck(argv[9], "wb");
+    fileA  = openCheck(argv[7], "rb");
+    fileB  = openCheck(argv[8], "rb");
+    fileR1 = openCheck(argv[9], "wb");
+    fileR2 = openCheck(argv[10], "wb");
+
+    set_number_threads(atoi(argv[6]));
 
     A = newMatrix(atoi(argv[2]), atoi(argv[3]), fileA);
     B = newMatrix(atoi(argv[4]), atoi(argv[5]), fileB);
