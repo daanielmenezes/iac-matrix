@@ -57,30 +57,68 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
     return 0;
 }
 
+
+
+
+struct mult_mult_arg {
+    struct matrix *matrixA;
+    struct matrix *matrixB;
+    struct matrix *matrixC;
+    int firstLine, lastLine;
+};
+
+static void *mult_mult_worker(void *a) {
+    int aLine, aCol, bCol, aLineIdx, bLineIdx, cLineIdx;
+    struct mult_mult_arg *arg = (struct mult_mult_arg *) a;
+    __m256 aElem, cResult, bRow;
+
+    for (aLine = arg->firstLine; aLine < arg->lastLine; aLine++) {
+        aLineIdx = aLine*arg->matrixA->width;
+        cLineIdx = aLine*arg->matrixC->width;
+        for (aCol=0; aCol < arg->matrixA->width; aCol++) {
+            aElem = _mm256_set1_ps(arg->matrixA->rows[aLineIdx + aCol]);
+            bLineIdx = aCol*arg->matrixB->width;
+            for (bCol = 0; bCol < arg->matrixB->width; bCol+=8) {
+                bRow = _mm256_load_ps( arg->matrixB->rows + bLineIdx + bCol);
+                cResult = _mm256_load_ps( arg->matrixC->rows + cLineIdx+bCol);
+                cResult = _mm256_fmadd_ps(aElem, bRow, cResult);
+                _mm256_store_ps( arg->matrixC->rows + cLineIdx + bCol, cResult );
+            }     
+        }
+    }
+    pthread_exit(NULL);
+}
 /*
  *Essa função recebe 3 matrizes como argumentos de entrada e calcula o valor do produto da
  *matriz A pela matriz B. O resultado da operação deve ser retornado na matriz C. Em caso
  *de sucesso, a função deve retornar o valor 1. Em caso de erro, a função deve retornar 0.
  */
 int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct matrix * matrixC) {
-    int aLine, aCol, bCol, aLineIdx, bLineIdx, cLineIdx;
-    __m256 aElem, cResult, bRow;
+    int i, line_qty, line;
+    pthread_t *threads;
+    struct mult_mult_arg *args;
     if (matrixA->width != matrixB->height || matrixA->height != matrixC->height || matrixB->width != matrixC->width)
         return 0;
-    for (aLine = 0; aLine < matrixA->height; aLine++) {
-        aLineIdx = aLine*matrixA->width;
-        cLineIdx = aLine*matrixC->width;
-        for (aCol=0; aCol < matrixA->width; aCol++) {
-            aElem = _mm256_set1_ps(matrixA->rows[aLineIdx + aCol]);
-            bLineIdx = aCol*matrixB->width;
-            for (bCol = 0; bCol < matrixB->width; bCol+=8) {
-                bRow = _mm256_load_ps( matrixB->rows + bLineIdx + bCol);
-                cResult = _mm256_load_ps( matrixC->rows + cLineIdx+bCol);
-                cResult = _mm256_fmadd_ps(aElem, bRow, cResult);
-                _mm256_store_ps( matrixC->rows + cLineIdx + bCol, cResult );
-            }     
-        }
+
+    threads = malloc(sizeof(pthread_t) * n_threads);
+    args = malloc(sizeof(struct mult_mult_arg) * n_threads);
+    line_qty = matrixA->height/n_threads;
+    for (i=0, line=0; i<n_threads; i++, line+=line_qty) {
+        args[i].matrixA = matrixA;
+        args[i].matrixB = matrixB;
+        args[i].matrixC = matrixC;
+        args[i].firstLine = line;
+        args[i].firstLine = line + line_qty;
+        pthread_create(&threads[i],NULL, mult_mult_worker, &args[i]);
     }
+
+    for (i=0; i<n_threads; i++) {
+        if (pthread_join(threads[i], NULL))
+            return 0;
+    }
+    free(args);
+    free(threads);
+
     return 1;
 }
 
