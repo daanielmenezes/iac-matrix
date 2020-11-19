@@ -57,11 +57,11 @@ wc == wb
 hc == ha
 */
 __global__
-void matrix_mult_kernel(float *d_a, float *d_b, float *d_c, int wa, int ha, int wb) {
+void matrix_mult_kernel(float *d_a, float *d_b, float *d_c, int wa, int wb, int n) {
     int i;
 
     for (i = blockIdx.x * blockDim.x + threadIdx.x;
-         i < wb*ha;
+         i < n;
          i += blockDim.x * gridDim.x) 
     {
         int row = i/wb;
@@ -92,7 +92,7 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct m
     if (numBlocks > max_blocks_per_grid)
         numBlocks = max_blocks_per_grid;
 
-    matrix_mult_kernel<<<numBlocks, threads_per_block>>>(matrixA->d_rows, matrixB->d_rows, matrixC->d_rows, matrixA->width, matrixA->height, matrixB->width);
+    matrix_mult_kernel<<<numBlocks, threads_per_block>>>(matrixA->d_rows, matrixB->d_rows, matrixC->d_rows, matrixA->width, matrixB->width, size);
     cudaDeviceSynchronize();
 
     error = cudaMemcpy(matrixC->h_rows, matrixC->d_rows, size*sizeof(float), cudaMemcpyDeviceToHost);
@@ -106,7 +106,7 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix * matrixB, struct m
 int set_grid_size(int n_threads_per_block, int n_max_block_per_grid) {
     if (n_threads_per_block <= 1024  &&  n_max_block_per_grid <= 65535) {
         threads_per_block = n_threads_per_block;
-        max_blocks_per_grid = n_threads_per_block;
+        max_blocks_per_grid = n_max_block_per_grid;
         return 1;
     }
     threads_per_block   = DEFAULT_TPB;

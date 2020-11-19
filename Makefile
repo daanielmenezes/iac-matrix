@@ -19,4 +19,4 @@ thread: file_generator.c matrix_lib.c matrix_lib_test.c timer.c
 	$(CC) $(CFLAGS) -std=c11 -pthread -mfma -o matrix_lib_test matrix_lib.c matrix_lib_test.c timer.c
 
 cuda: matrix_lib.cu matrix_lib_test.cu timer.c 
-	nvcc -o matrix_lib_test matrix_lib_test.cu matrix_lib.cu timer.c
+	nvcc -g -o matrix_lib_test matrix_lib_test.cu matrix_lib.cu timer.c
